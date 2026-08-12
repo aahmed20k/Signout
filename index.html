@@ -396,7 +396,7 @@
 
         .team-selection {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
 
@@ -412,16 +412,12 @@
         }
 
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
+            background: rgba(5, 2, 15, 0.6);
+            border: 1px solid rgba(167, 139, 250, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 32px;
         }
 
         .modal-overlay.hidden {
@@ -429,76 +425,50 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #0a0415 0%, #1a0d2e 50%, #0a0415 100%);
-            border: 1px solid rgba(167, 139, 250, 0.2);
-            border-radius: 12px;
-            padding: 32px;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            width: 90%;
-            position: relative;
-        }
-
-        .modal-close-btn {
-            display: block;
-            margin-top: 24px;
-            background: rgba(167, 139, 250, 0.15);
-            color: #a78bfa;
-            border: 1px solid rgba(167, 139, 250, 0.3);
-            border-radius: 6px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .modal-close-btn:hover {
-            background: rgba(167, 139, 250, 0.25);
+            width: 100%;
         }
 
         .modal-title {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 600;
             color: #a78bfa;
-            margin-bottom: 24px;
-            margin-top: 12px;
+            margin-bottom: 16px;
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .modal-title::after {
+            content: '▼';
+            font-size: 12px;
+        }
+
+        .modal-title.collapsed::after {
+            content: '▶';
         }
 
         .modal-controls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
         }
 
-        .open-modal-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(167, 139, 250, 0.2);
-            color: #a78bfa;
-            border: 1px solid rgba(167, 139, 250, 0.3);
-            padding: 12px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            z-index: 999;
-            transition: all 0.2s ease;
+        .escalated-row {
+            background: rgba(239, 68, 68, 0.15) !important;
         }
 
-        .open-modal-btn:hover {
-            background: rgba(167, 139, 250, 0.3);
-        }
-
-        .open-modal-btn.hidden {
-            display: none;
+        .escalated-row td {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
         }
 
         .data-controls {
             display: flex;
             gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
             margin-bottom: 20px;
         }
 
@@ -524,68 +494,58 @@
     </style>
 </head>
 <body>
-    <div id="modalOverlay" class="modal-overlay">
-        <div class="modal-content">
-            <h2 class="modal-title">Setup for Tonight</h2>
+    <div class="container">
+        <div id="modalOverlay" class="modal-overlay">
+            <h2 class="modal-title" onclick="toggleSetup()">Setup for Tonight</h2>
             
-            <div class="modal-controls-grid">
-                <div class="controls">
-                    <h3>Select Teams for Today</h3>
-                    <div class="team-selection">
-                        <button class="btn-add" onclick="addTeam('Wearn')">Wearn</button>
-                        <button class="btn-add" onclick="addTeam('Ratnoff')">Ratnoff</button>
-                        <button class="btn-add" onclick="addTeam('Dworken')">Dworken</button>
-                        <button class="btn-add" onclick="addTeam('Hellerstein')">Hellerstein</button>
-                        <button class="btn-add" onclick="addTeam('Wright')">Wright</button>
-                        <button class="btn-add" onclick="addTeam('Carpenter')">Carpenter</button>
-                        <button class="btn-add" onclick="addTeam('Cherniak')">Cherniak</button>
-                        <button class="btn-add" onclick="addTeam('Weisman')">Weisman</button>
-                        <button class="btn-add" onclick="addTeam('Naff')">Naff</button>
+            <div id="setupContent">
+                <div class="modal-controls-grid">
+                    <div class="controls">
+                        <h3>Select Teams for Today</h3>
+                        <div class="team-selection">
+                            <button class="btn-add" onclick="addTeam('Wearn')">Wearn</button>
+                            <button class="btn-add" onclick="addTeam('Ratnoff')">Ratnoff</button>
+                            <button class="btn-add" onclick="addTeam('Dworken')">Dworken</button>
+                            <button class="btn-add" onclick="addTeam('Hellerstein')">Hellerstein</button>
+                            <button class="btn-add" onclick="addTeam('Wright')">Wright</button>
+                            <button class="btn-add" onclick="addTeam('Carpenter')">Carpenter</button>
+                            <button class="btn-add" onclick="addTeam('Cherniak')">Cherniak</button>
+                            <button class="btn-add" onclick="addTeam('Weisman')">Weisman</button>
+                            <button class="btn-add" onclick="addTeam('Naff')">Naff</button>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <h3>Add Resident</h3>
+                        <select id="teamSelect">
+                            <option value="">Select a team</option>
+                        </select>
+                        <input type="text" id="residentName" placeholder="Resident name" onkeypress="if(event.key==='Enter') addResident()">
+                        <select id="callSchedule">
+                            <option value="">Select call schedule</option>
+                            <option value="L→M">L→M</option>
+                            <option value="M→S">M→S</option>
+                            <option value="S→H">S→H</option>
+                            <option value="H→L">H→L</option>
+                        </select>
+                        <button class="btn-ai-toggle" id="aiToggleBtn" onclick="toggleAI()">AI</button>
+                        <button class="btn-add" onclick="addResident()">Add Resident</button>
+                    </div>
+                    
+                    <div class="controls">
+                        <h3>Add Patient</h3>
+                        <select id="residentSelect">
+                            <option value="">Select a resident</option>
+                        </select>
+                        <input type="text" id="patientName" placeholder="Patient name" onkeypress="if(event.key==='Enter') addPatient()">
+                        <input type="text" id="actionItems" placeholder="Action items" onkeypress="if(event.key==='Enter') addPatient()">
+                        <button class="btn-add" onclick="addPatient()">Add Patient</button>
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <h3>Add Resident</h3>
-                    <select id="teamSelect">
-                        <option value="">Select a team</option>
-                    </select>
-                    <input type="text" id="residentName" placeholder="Resident name" onkeypress="if(event.key==='Enter') addResident()">
-                    <select id="callSchedule">
-                        <option value="">Select call schedule</option>
-                        <option value="L→M">L→M</option>
-                        <option value="M→S">M→S</option>
-                        <option value="S→H">S→H</option>
-                        <option value="H→L">H→L</option>
-                    </select>
-                    <button class="btn-ai-toggle" id="aiToggleBtn" onclick="toggleAI()">AI</button>
-                    <button class="btn-add" onclick="addResident()">Add Resident</button>
-                </div>
-                
-                <div class="controls">
-                    <h3>Add Patient</h3>
-                    <select id="residentSelect">
-                        <option value="">Select a resident</option>
-                    </select>
-                    <input type="text" id="patientName" placeholder="Patient name" onkeypress="if(event.key==='Enter') addPatient()">
-                    <input type="text" id="actionItems" placeholder="Action items" onkeypress="if(event.key==='Enter') addPatient()">
-                    <button class="btn-add" onclick="addPatient()">Add Patient</button>
-                </div>
             </div>
-
-            <button class="modal-close-btn" onclick="closeModal()">Close Setup</button>
         </div>
-    </div>
 
-    <button id="openModalBtn" class="open-modal-btn hidden" onclick="openModal()">⚙ Setup</button>
-
-    <div class="container">
         <h1>Night Resident Sign-Out</h1>
-
-        <div class="data-controls">
-            <button class="data-btn" onclick="downloadData()">⬇ Download Data</button>
-            <button class="data-btn" onclick="document.getElementById('uploadInput').click()">⬆ Upload Data</button>
-            <input type="file" id="uploadInput" accept=".json" onchange="uploadData(event)">
-        </div>
 
         <table id="myTable">
             <thead>
@@ -609,6 +569,12 @@
             <div id="tallyText">Add residents and patients to see tally</div>
             <button class="tally-copy-btn" onclick="copyTally()">Copy Tally</button>
         </div>
+
+        <div class="data-controls">
+            <button class="data-btn" onclick="downloadData()">Download</button>
+            <button class="data-btn" onclick="document.getElementById('uploadInput').click()">Upload</button>
+            <input type="file" id="uploadInput" accept=".json" onchange="uploadData(event)">
+        </div>
     </div>
 
     <script>
@@ -620,15 +586,35 @@
         let selectedTeams = [];
         let editingNotes = null;
         let isResidentAI = false;
+        let setupOpen = true;
+
+        function toggleSetup() {
+            setupOpen = !setupOpen;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            if (setupOpen) {
+                content.style.display = 'block';
+                title.classList.remove('collapsed');
+            } else {
+                content.style.display = 'none';
+                title.classList.add('collapsed');
+            }
+        }
 
         function closeModal() {
-            document.getElementById('modalOverlay').classList.add('hidden');
-            document.getElementById('openModalBtn').classList.remove('hidden');
+            setupOpen = false;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            content.style.display = 'none';
+            title.classList.add('collapsed');
         }
 
         function openModal() {
-            document.getElementById('modalOverlay').classList.remove('hidden');
-            document.getElementById('openModalBtn').classList.add('hidden');
+            setupOpen = true;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            content.style.display = 'block';
+            title.classList.remove('collapsed');
         }
 
         function addTeam(teamName) {
@@ -984,6 +970,9 @@
                                     <td class="patient-delete"><button class="btn-delete" onclick="deletePatient(${patient.id})">Delete</button></td>
                                 `;
                                 row.innerHTML = html;
+                                if (patient.followup === 'escalated') {
+                                    row.classList.add('escalated-row');
+                                }
                             });
                         }
                     });
