@@ -1,0 +1,3218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Night Resident Sign-Out</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --bg-color-light: #f5f5f5;
+            --accent-color: #0066cc;
+            --accent-light: #0080ff;
+            --accent-dark: #003d99;
+            --accent-rgb: 0, 102, 204;
+            --text-color: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: var(--text-color);
+            padding: 32px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            color: var(--accent-color);
+            letter-spacing: -0.5px;
+        }
+
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 32px;
+            margin-bottom: 24px;
+        }
+
+        .ntd-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--accent-color);
+            user-select: none;
+            background: rgba(var(--accent-rgb), 0.1);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .ntd-toggle:hover {
+            background: rgba(var(--accent-rgb), 0.18);
+            border-color: rgba(var(--accent-rgb), 0.5);
+        }
+
+        .ntd-toggle.active {
+            background: rgba(var(--accent-rgb), 0.25);
+            border-color: var(--accent-color);
+        }
+
+        .ntd-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+            margin: 0;
+        }
+
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .controls {
+            background: #f9f9f9;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .controls h3 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: #ffffff;
+            border: 2px solid #000;
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        select {
+            background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230066cc' d='M6 9L1 4h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
+            padding-right: 32px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        select:hover {
+            background-color: #f5f5f5;
+        }
+
+        select:focus {
+            background-color: #f5f5f5;
+        }
+
+        option {
+            background: #0a0415;
+            color: var(--text-color);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
+            background-color: rgba(var(--accent-rgb), 0.15);
+        }
+
+        input::placeholder {
+            color: #555;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            margin-top: 4px;
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+        }
+
+        .btn-add:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(var(--accent-rgb), 0.15);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: #999;
+            padding: 2px 6px;
+            font-size: 16px;
+            width: auto;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .btn-delete:hover {
+            color: #ef4444;
+        }
+
+        .btn-quick-add-patient {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .btn-quick-add-patient:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+            border-color: var(--accent-color);
+        }
+
+        .btn-save {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            font-size: 12px;
+            width: auto;
+            margin: 0 4px 0 0;
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+        }
+
+        .btn-save:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+        }
+
+        .btn-cancel {
+            background: rgba(100, 116, 139, 0.15);
+            color: #cbd5e1;
+            padding: 6px 12px;
+            font-size: 12px;
+            width: auto;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(100, 116, 139, 0.25);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-color);
+            border: 2px solid var(--text-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: var(--bg-color);
+            border-bottom: 2px solid var(--text-color);
+        }
+
+        th {
+            padding: 8px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-color);
+        }
+
+        .next-day-btn {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .next-day-btn:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+            border-color: var(--accent-color);
+        }
+
+        .next-day-btn:active {
+            transform: scale(0.95);
+        }
+
+        td {
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.15);
+            border-right: 1px solid rgba(var(--accent-rgb), 0.15);
+            font-size: 14px;
+        }
+        
+        td:last-child {
+            border-right: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(var(--accent-rgb), 0.08);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .team-cell {
+            background: rgba(var(--accent-rgb), 0.08);
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        .pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        tbody tr {
+            transition: opacity 0.2s ease, background-color 0.2s ease;
+        }
+
+        tbody tr[draggable="true"] {
+            cursor: grab;
+        }
+
+        tbody tr[draggable="true"]:active {
+            cursor: grabbing;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(var(--accent-rgb), 0.08);
+        }
+
+        tbody tr[style*="borderTop: 3px solid"] {
+            background-color: rgba(var(--accent-rgb), 0.15);
+            box-shadow: inset 0 2px 0 var(--accent-color);
+        }
+
+        tbody tr[style*="outline: 2px dashed"] {
+            opacity: 0.5 !important;
+            background-color: rgba(var(--accent-rgb), 0.3) !important;
+        }
+
+        .pending:hover {
+            background: rgba(251, 191, 36, 0.3);
+        }
+
+        .completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .completed:hover {
+            background: rgba(34, 197, 94, 0.3);
+        }
+
+        .escalated {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .escalated:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .watcher-circle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .watcher-circle:hover {
+            border-color: #ef4444;
+        }
+
+        .watcher-circle.active {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .notes-cell {
+            cursor: pointer;
+            color: var(--accent-color);
+            transition: all 0.2s ease;
+            min-height: 20px;
+        }
+
+        .notes-cell:hover {
+            background: rgba(var(--accent-rgb), 0.15);
+            border-radius: 4px;
+        }
+
+        .notes-empty {
+            color: #666;
+            font-style: italic;
+            font-size: 13px;
+        }
+
+        .notes-input-container {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .notes-input-container input {
+            margin: 0;
+            padding: 6px 8px;
+            flex: 1;
+            min-width: 150px;
+            font-size: 13px;
+        }
+
+        .notes-input-container button {
+            margin: 0;
+            padding: 6px 10px;
+            font-size: 11px;
+            width: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            th {
+                font-size: 11px;
+            }
+        }
+
+        .tally-section {
+            margin-top: 32px;
+            padding: 20px;
+            background: #f5f5f5;
+            border: 2px solid #000;
+            border-radius: 8px;
+        }
+
+        .tally-section h3 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 12px;
+        }
+
+        #tallyText {
+            background: rgba(var(--accent-rgb), 0.08);
+            border: 1px solid rgba(var(--accent-rgb), 0.15);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text-color);
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            min-height: 40px;
+            word-break: break-all;
+            cursor: text;
+            user-select: all;
+        }
+
+        .tally-copy-btn {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 8px 16px;
+            margin-top: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .tally-copy-btn:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+        }
+
+        .summary-section {
+            margin-top: 32px;
+            padding: 20px;
+            background: #f5f5f5;
+            border: 2px solid #000;
+            border-radius: 8px;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .summary-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .summary-toggle {
+            font-size: 18px;
+            transition: transform 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .summary-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .summary-content {
+            margin-top: 16px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-color);
+            border: 1px solid var(--text-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .summary-table th {
+            text-align: left;
+            padding: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .summary-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+            vertical-align: center;
+            color: var(--text-color);
+        }
+
+        .team-cubes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .patient-cube {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s ease;
+            display: inline-block;
+            margin: 4px 2px;
+        }
+
+        .patient-cube:hover {
+            transform: scale(1.15);
+        }
+
+        .patient-cube.yellow {
+            background: #fbbf24;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.3);
+        }
+
+        .patient-cube.green {
+            background: #4ade80;
+            box-shadow: 0 2px 4px rgba(74, 222, 128, 0.3);
+        }
+
+        .patient-cube.red {
+            background: #ef4444;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-ai-toggle {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-ai-toggle:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+        }
+
+        .btn-ai-toggle.active {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.3);
+        }
+
+        .team-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .team-selection .btn-add {
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
+        .team-selection .btn-add.team-selected {
+            background: rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            border-color: rgba(251, 191, 36, 0.5);
+        }
+
+        .modal-overlay {
+            background: var(--bg-color-light);
+            border: 2px solid var(--text-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            width: 100%;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .modal-title::after {
+            content: '▼';
+            font-size: 12px;
+        }
+
+        .modal-title.collapsed::after {
+            content: '▶';
+        }
+
+        .modal-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+        
+        @media (max-width: 1400px) {
+            .modal-controls-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .modal-controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .escalated-row {
+            background: rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .escalated-row td {
+            background: rgba(239, 68, 68, 0.15) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .data-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 32px;
+            margin-bottom: 20px;
+        }
+
+        .data-btn {
+            background: rgba(var(--accent-rgb), 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .data-btn:hover {
+            background: rgba(var(--accent-rgb), 0.25);
+        }
+
+        #uploadInput {
+            display: none;
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+            background: rgba(var(--accent-rgb), 0.05);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .task-checkbox {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .task-item:hover .task-checkbox {
+            border-color: var(--accent-light);
+        }
+
+        .task-checkbox.done {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .task-checkbox.done::after {
+            content: '✓';
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .task-text {
+            color: var(--accent-color);
+        }
+
+        .task-item.done .task-text {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .task-item.ntd .task-checkbox {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .task-item.ntd .task-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .task-item.ntd .task-text {
+            color: #22c55e;
+        }
+
+        .task-item.ntd {
+            cursor: default;
+        }
+
+        .task-item.ntd .task-checkbox:hover {
+            border-color: #22c55e;
+        }
+
+        .task-item.editing {
+            flex: 1;
+        }
+
+        .task-input {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.4);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+        }
+
+        .call-select {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.4);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .call-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+        }
+
+        .call-select option {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .task-delete-btn {
+            background: transparent;
+            border: none;
+            color: #e74c3c;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 0 0 4px;
+            margin: 0;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            flex-shrink: 0;
+            visibility: hidden;
+            width: 0;
+            overflow: hidden;
+            line-height: 1;
+        }
+
+        .task-item:hover .task-delete-btn {
+            visibility: visible;
+            width: auto;
+            padding: 0 0 0 4px;
+        }
+
+        .task-add {
+            padding: 4px 8px;
+            color: var(--accent-color);
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            border-radius: 3px;
+            background: rgba(var(--accent-rgb), 0.08);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+            white-space: nowrap;
+        }
+
+        .task-add:hover {
+            opacity: 1;
+            background: rgba(var(--accent-rgb), 0.15);
+        }
+
+        .task-remove-btn {
+            background: transparent;
+            border: none;
+            color: #999;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            margin-left: 6px;
+            flex-shrink: 0;
+        }
+
+        .task-remove-btn:hover {
+            color: #ef4444;
+        }
+
+        .btn-add:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #actionItems:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .patient-actions {
+            transition: background-color 0.2s ease;
+        }
+
+        .patient-actions.has-pending-tasks {
+            background: rgba(251, 191, 36, 0.2) !important;
+            border-color: rgba(251, 191, 36, 0.3) !important;
+        }
+
+        .patient-actions.all-tasks-done {
+            background: rgba(34, 197, 94, 0.2) !important;
+            border-color: rgba(34, 197, 94, 0.3) !important;
+        }
+
+        .data-controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .theme-footer {
+            margin-top: 24px;
+            padding: 16px;
+            border-top: 1px solid rgba(var(--accent-rgb), 0.2);
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .display-settings {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(var(--accent-rgb), 0.08);
+            border-radius: 6px;
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+        }
+
+        .display-settings label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            min-width: 70px;
+            margin: 0;
+        }
+
+        .display-settings input[type="range"] {
+            width: 100px;
+            cursor: pointer;
+            -webkit-appearance: slider-horizontal;
+            appearance: slider-horizontal;
+            accent-color: var(--accent-color);
+        }
+
+        .display-settings input[type="range"]::-webkit-slider-runnable-track {
+            background: rgba(var(--accent-rgb), 0.3);
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        .display-settings input[type="range"]::-moz-range-track {
+            background: rgba(var(--accent-rgb), 0.3);
+            height: 6px;
+            border-radius: 3px;
+            border: none;
+        }
+
+        .display-settings input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: slider-thumb;
+            appearance: slider-thumb;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-top: -5px;
+        }
+
+        .display-settings input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .display-settings .size-value {
+            min-width: 35px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .theme-btn {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 100;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            background: rgba(var(--accent-rgb), 0.2);
+            border-color: rgba(var(--accent-rgb), 0.5);
+        }
+
+        .theme-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .theme-modal.hidden {
+            display: none;
+        }
+
+        .theme-modal-content {
+            background: var(--bg-color);
+            border: 2px solid #000;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .theme-modal-content h3 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .theme-control {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .theme-control label {
+            font-size: 13px;
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        .theme-control input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid rgba(var(--accent-rgb), 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .theme-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .theme-buttons .btn-add {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="modalOverlay" class="modal-overlay">
+            <h2 class="modal-title" onclick="toggleSetup()">Setup for Tonight</h2>
+            
+            <div id="setupContent">
+                <div class="modal-controls-grid">
+                    <div class="controls">
+                        <h3>Select Teams for Today</h3>
+                        <div class="team-selection">
+                            <button class="btn-add" onclick="addTeam('Wearn')">Wearn</button>
+                            <button class="btn-add" onclick="addTeam('Ratnoff')">Ratnoff</button>
+                            <button class="btn-add" onclick="addTeam('Dworken')">Dworken</button>
+                            <button class="btn-add" onclick="addTeam('Hellerstein')">Hellerstein</button>
+                            <button class="btn-add" onclick="addTeam('Wright')">Wright</button>
+                            <button class="btn-add" onclick="addTeam('Carpenter')">Carpenter</button>
+                            <button class="btn-add" onclick="addTeam('Cherniak')">Cherniak</button>
+                            <button class="btn-add" onclick="addTeam('Weisman')">Weisman</button>
+                            <button class="btn-add" onclick="addTeam('Naff')">Naff</button>
+                        </div>
+                    </div>
+                    
+                    <div class="controls">
+                        <h3>Add Resident</h3>
+                        <select id="teamSelect">
+                            <option value="">Select a team</option>
+                        </select>
+                        <input type="text" id="residentName" placeholder="Resident name" onkeypress="if(event.key==='Enter') addResident()">
+                        <select id="callSchedule">
+                            <option value="">Select call schedule</option>
+                            <option value="L-M">L-M</option>
+                            <option value="M-S">M-S</option>
+                            <option value="S-H">S-H</option>
+                            <option value="H-L">H-L</option>
+                        </select>
+                        <button class="btn-ai-toggle" id="aiToggleBtn" onclick="toggleAI()">AI</button>
+                        <button class="btn-add" onclick="addResident()">Add Resident</button>
+                    </div>
+                    
+                    <div class="controls">
+                        <h3>Add Patient</h3>
+                        <select id="residentSelect">
+                            <option value="">Select a resident</option>
+                        </select>
+                        <input type="text" id="patientName" placeholder="Patient name" onkeypress="if(event.key==='Enter') addPatient()">
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="actionItems" placeholder="Task name" onkeypress="if(event.key==='Enter') addTask()">
+                            <button class="btn-add" onclick="addTask()" style="width: auto; padding: 8px 12px; font-size: 14px;">+</button>
+                            <button class="btn-add" onclick="addNTD()" style="width: auto; padding: 8px 12px;">NTD</button>
+                        </div>
+                        
+                        <div id="tasksList" style="background: rgba(var(--accent-rgb), 0.08); border: 1px solid rgba(var(--accent-rgb), 0.15); border-radius: 6px; padding: 8px; min-height: 20px; margin-bottom: 8px; font-size: 13px;">
+                            <div id="tasksDisplay" style="color: #999;">No tasks added</div>
+                        </div>
+                        
+                        <button class="btn-add" onclick="addPatient()">Add Patient</button>
+                    </div>
+                    
+                    <div class="controls" style="margin-top: 32px; background: rgba(var(--accent-rgb), 0.08);">
+                        <h3>Display Settings</h3>
+                        <div class="display-settings">
+                            <label for="fontSizeSlider">Font Size:</label>
+                            <input type="range" id="fontSizeSlider" min="6" max="16" value="13" step="1" oninput="changeFontSize(this.value)">
+                            <span class="size-value" id="fontSizeValue">13px</span>
+                        </div>
+                        
+                        <div class="display-settings" style="margin-top: 12px;">
+                            <label for="cellSizeSlider">Cell Padding:</label>
+                            <input type="range" id="cellSizeSlider" min="0" max="12" value="6" step="1" oninput="changeCellSize(this.value)">
+                            <span class="size-value" id="cellSizeValue">6px</span>
+                        </div>
+                        
+                        <button id="darkModeBtn" class="theme-btn" onclick="toggleDarkMode()" style="margin-top: 12px;">🌙 Dark Mode</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-section">
+            <div class="summary-header" onclick="toggleSummary()">
+                <span class="summary-toggle">▼</span>
+                <h3>Summary <span id="patientCountBadge" style="font-size: 12px; font-weight: normal; opacity: 0.7;">— 0 patients</span></h3>
+            </div>
+            <div class="summary-content" id="summaryContent">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Patients</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+<div class="filter-controls">
+            <label class="ntd-toggle">
+                <input type="checkbox" id="hideNTDCheckbox" onchange="toggleHideNTD()">
+                <span>Hide NTD Patients</span>
+            </label>
+            <div style="display: flex; gap: 0;">
+                <input type="text" id="patientSearch" placeholder="Search patient..." style="padding: 6px 12px; border: 1px solid rgba(var(--accent-rgb), 0.3); border-radius: 6px 0 0 6px; font-size: 14px; width: 200px; flex: 1;" oninput="filterPatients()">
+                <button class="btn-add" onclick="clearSearch()" title="Clear search" style="padding: 4px 8px; font-size: 12px; border-radius: 0 6px 6px 0; border-left: none; margin: 0; white-space: nowrap;">✕</button>
+            </div>
+            <button class="btn-add" onclick="resetAllActionItems()" title="Clear all action items">Clear Action Items</button>
+            <button class="btn-add" onclick="resetAllNotes()" title="Clear all notes">Clear Notes</button>
+            <button class="btn-add" onclick="toggleHideColumns()" title="Hide/show team, resident, and call columns" id="hideColumnsBtn">Hide Columns</button>
+        </div>
+
+        <table id="myTable">
+            <thead>
+                <tr>
+                    <th data-column-type="team" style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('team')" title="Click to sort by team">Team</th>
+                    <th data-column-type="resident" style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('resident')" title="Click to sort by resident">Resident</th>
+                    <th data-column-type="call" style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('call')" title="Click to sort by call schedule">
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                            <span>Call</span>
+                            <button class="next-day-btn" onclick="rotateAllCalls()" title="Rotate all calls to next day">-</button>
+                        </div>
+                    </th>
+                    <th style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('patient')" title="Click to sort by patient name">Patient</th>
+                    <th style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('actions')" title="Click to sort by action items">Action Items</th>
+                    <th style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('notes')" title="Click to sort by notes">Notes</th>
+                    <th style="cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('watcher')" title="Click to sort by watcher">Watcher</th>
+                    <th style="width: 50px; cursor: pointer; user-select: none; background: var(--bg-color);" onclick="sortTable('escalated')" title="Click to sort by escalated">Escalated</th>
+                    <th style="cursor: pointer; user-select: none; background: var(--bg-color);">Delete</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+
+        <div class="tally-section">
+            <h3>Resident Tally - Copy & Send</h3>
+            <div id="tallyText">Add residents and patients to see tally</div>
+            <button class="tally-copy-btn" onclick="copyTally()">Copy Tally</button>
+        </div>
+
+
+        <div class="data-controls">
+            <button class="data-btn" onclick="downloadData()">Download</button>
+            <button class="data-btn" onclick="document.getElementById('uploadInput').click()">Upload</button>
+            <button class="data-btn" onclick="setDesktopSaveLocation()">📁 Auto-Save to Desktop</button>
+            <input type="file" id="uploadInput" accept=".json" onchange="uploadData(event)">
+        </div>
+
+        <div id="autoSaveStatus" style="padding: 8px 12px; margin-top: 8px; text-align: center; font-size: 13px; color: #666; background: rgba(var(--accent-rgb), 0.05); border: 1px solid rgba(var(--accent-rgb), 0.1); border-radius: 4px;">
+        </div>
+
+
+    </div>
+
+    <div id="themeModal" class="theme-modal hidden">
+        <div class="theme-modal-content">
+            <h3>Customize Theme</h3>
+            <div class="theme-control">
+                <label for="bgColorInput">Background Color:</label>
+                <input type="color" id="bgColorInput" value="#0a0415">
+            </div>
+            <div class="theme-control">
+                <label for="accentColorInput">Accent Color:</label>
+                <input type="color" id="accentColorInput" value="#a78bfa">
+            </div>
+            <div class="theme-buttons">
+                <button class="btn-add" onclick="applyTheme()">Apply</button>
+                <button class="btn-add" onclick="closeThemeModal()" style="background: rgba(var(--accent-rgb), 0.1);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="quickAddPatientModal" class="theme-modal hidden">
+        <div class="theme-modal-content">
+            <h3>Add Patient</h3>
+            <div class="theme-control">
+                <label for="quickPatientName">Patient Name:</label>
+                <input type="text" id="quickPatientName" placeholder="Enter patient name" onkeypress="if(event.key==='Enter') quickAddTask()">
+            </div>
+            <div class="theme-control">
+                <label>Tasks:</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" id="quickTaskInput" placeholder="Task name" onkeypress="if(event.key==='Enter') quickAddTask()">
+                    <button class="btn-add" onclick="quickAddTask()" style="width: auto; padding: 8px 12px; font-size: 14px;">+</button>
+                    <button class="btn-add" onclick="quickAddNTD()" style="width: auto; padding: 8px 12px;">NTD</button>
+                </div>
+                <div id="quickTasksList" style="background: rgba(var(--accent-rgb), 0.08); border: 1px solid rgba(var(--accent-rgb), 0.15); border-radius: 6px; padding: 8px; min-height: 20px; margin-bottom: 8px; font-size: 13px;">
+                    <div id="quickTasksDisplay" style="color: #999;">No tasks added</div>
+                </div>
+            </div>
+            <div class="theme-buttons">
+                <button class="btn-add" onclick="quickAddPatientConfirm()">Add Patient</button>
+                <button class="btn-add" onclick="closeQuickAddPatientModal()" style="background: rgba(var(--accent-rgb), 0.1);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmDeleteTeamModal" class="theme-modal hidden">
+        <div class="theme-modal-content">
+            <h3>Remove Team?</h3>
+            <div id="confirmTeamMessage" style="margin-bottom: 20px; font-size: 14px; color: var(--text-color);">
+            </div>
+            <div class="theme-buttons">
+                <button class="btn-add" onclick="confirmDeleteTeam()">Remove</button>
+                <button class="btn-add" onclick="cancelDeleteTeam()" style="background: rgba(var(--accent-rgb), 0.1);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmActionModal" class="theme-modal hidden">
+        <div class="theme-modal-content">
+            <h3 id="confirmActionTitle">Confirm Action</h3>
+            <div id="confirmActionMessage" style="margin-bottom: 20px; font-size: 14px; color: var(--text-color);"></div>
+            <div class="theme-buttons">
+                <button class="btn-add" onclick="performConfirmedAction()">Remove</button>
+                <button class="btn-add" onclick="cancelConfirmAction()" style="background: rgba(var(--accent-rgb), 0.1);">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = {
+            teams: [],
+            residents: [],
+            patients: []
+        };
+        let selectedTeams = [];
+        let editingNotes = null;
+        let editingTask = null; // {patientId, taskId}
+        let editingCall = null; // residentId
+        let isResidentAI = false;
+        let setupOpen = true;
+        let tempTasks = [];
+        let hideNTD = false;
+        let quickAddPatientModalOpen = false;
+        let quickAddSelectedResidentId = null;
+        let quickAddTempTasks = [];
+        let pendingTeamDelete = null; // team name pending deletion
+        let pendingTeamDeleteCounts = {resCount: 0, patCount: 0};
+        let editingResidentName = null; // residentId
+        let editingPatientName = null; // patientId
+        let draggedPatient = null; // {patientId, fromResidentId}
+        let pendingConfirmAction = null; // {type, id, data}
+        let autoSaveHandle = null; // auto-save interval handle
+        let desktopFileHandle = null; // File System Access API handle
+        let searchTerm = ''; // search filter
+        let lastAutoSaveTime = null; // timestamp of last auto-save
+        let sortColumn = 'resident'; // default sort column
+        let sortDirection = 'asc'; // asc or desc
+        let lastSelectedTeam = ''; // remember last selected team for adding residents
+        let hideColumns = false; // hide team, resident, call columns
+
+        function addTask() {
+            if (tempTasks.some(t => t.text === 'NTD')) {
+                alert('Cannot add tasks when NTD is selected');
+                return;
+            }
+            
+            let taskInput = document.getElementById('actionItems');
+            let taskText = taskInput.value.trim();
+            if (!taskText) return;
+            
+            tempTasks.push({
+                id: Date.now(),
+                text: taskText,
+                done: false
+            });
+            
+            taskInput.value = '';
+            updateTasksDisplay();
+        }
+
+        function addNTD() {
+            tempTasks = [{
+                id: Date.now(),
+                text: 'NTD',
+                done: false
+            }];
+            updateTasksDisplay();
+        }
+
+        function removeTask(taskId) {
+            tempTasks = tempTasks.filter(t => t.id !== taskId);
+            updateTasksDisplay();
+        }
+
+        function updateTasksDisplay() {
+            let display = document.getElementById('tasksDisplay');
+            let taskInput = document.getElementById('actionItems');
+            let addTaskBtn = taskInput.nextElementSibling;
+            
+            if (tempTasks.length === 0) {
+                display.innerHTML = '<span style="color: #999; font-size: 12px;">No tasks added</span>';
+                taskInput.disabled = false;
+                addTaskBtn.disabled = false;
+                return;
+            }
+            
+            let hasNTD = tempTasks.some(t => t.text === 'NTD');
+            if (hasNTD) {
+                taskInput.disabled = true;
+                addTaskBtn.disabled = true;
+            } else {
+                taskInput.disabled = false;
+                addTaskBtn.disabled = false;
+            }
+            
+            display.innerHTML = '<div class="tasks-list">' + tempTasks.map(task => {
+                if (task.text === 'NTD') {
+                    return `<div class="task-item ntd"><div class="task-checkbox done"></div><div class="task-text">${task.text}</div><button class="task-remove-btn" onclick="removeTask(${task.id})">×</button></div>`;
+                }
+                return `<div class="task-item"><div class="task-checkbox"></div><div class="task-text">${task.text}</div><button class="task-remove-btn" onclick="removeTask(${task.id})">×</button></div>`;
+            }).join('') + '</div>';
+        }
+
+        function toggleSetup() {
+            setupOpen = !setupOpen;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            if (setupOpen) {
+                content.style.display = 'block';
+                title.classList.remove('collapsed');
+            } else {
+                content.style.display = 'none';
+                title.classList.add('collapsed');
+            }
+        }
+
+        function closeModal() {
+            setupOpen = false;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            content.style.display = 'none';
+            title.classList.add('collapsed');
+        }
+
+        function openModal() {
+            setupOpen = true;
+            let content = document.getElementById('setupContent');
+            let title = document.querySelector('.modal-title');
+            content.style.display = 'block';
+            title.classList.remove('collapsed');
+        }
+
+        function addTeam(teamName) {
+            let idx = selectedTeams.indexOf(teamName);
+            
+            if (idx > -1) {
+                // Deselect team - show confirmation modal
+                let teamId = data.teams.find(t => t.name === teamName)?.id;
+                let resCount = 0;
+                let patCount = 0;
+                
+                if (teamId) {
+                    resCount = data.residents.filter(r => r.teamId === teamId).length;
+                    patCount = data.patients.filter(p => {
+                        let res = data.residents.find(r => r.id === p.residentId);
+                        return res && res.teamId === teamId;
+                    }).length;
+                }
+
+                let message = `Remove ${teamName}? This will delete ${resCount} resident${resCount !== 1 ? 's' : ''} and ${patCount} patient${patCount !== 1 ? 's' : ''}.`;
+                
+                // Store the pending deletion info
+                pendingTeamDelete = teamName;
+                pendingTeamDeleteCounts = {resCount, patCount};
+                
+                // Show the modal
+                document.getElementById('confirmTeamMessage').textContent = message;
+                document.getElementById('confirmDeleteTeamModal').classList.remove('hidden');
+            } else {
+                // Select team
+                selectedTeams.push(teamName);
+                if (!data.teams.find(t => t.name === teamName)) {
+                    data.teams.push({
+                        id: Date.now(),
+                        name: teamName
+                    });
+                }
+                
+                // Update button styling
+                document.querySelectorAll('.team-selection button').forEach(btn => {
+                    if (selectedTeams.includes(btn.textContent.trim())) {
+                        btn.classList.add('team-selected');
+                    } else {
+                        btn.classList.remove('team-selected');
+                    }
+                });
+                
+                updateSelects();
+                render();
+            }
+        }
+
+        function confirmDeleteTeam() {
+            let teamName = pendingTeamDelete;
+            
+            // Deselect team
+            let idx = selectedTeams.indexOf(teamName);
+            selectedTeams.splice(idx, 1);
+            
+            // Remove team and associated residents/patients
+            let teamId = data.teams.find(t => t.name === teamName)?.id;
+            if (teamId) {
+                let resIds = data.residents.filter(r => r.teamId === teamId).map(r => r.id);
+                data.teams = data.teams.filter(t => t.id !== teamId);
+                data.residents = data.residents.filter(r => r.teamId !== teamId);
+                data.patients = data.patients.filter(p => !resIds.includes(p.residentId));
+            }
+            
+            // Update button styling
+            document.querySelectorAll('.team-selection button').forEach(btn => {
+                if (selectedTeams.includes(btn.textContent.trim())) {
+                    btn.classList.add('team-selected');
+                } else {
+                    btn.classList.remove('team-selected');
+                }
+            });
+            
+            // Close modal
+            document.getElementById('confirmDeleteTeamModal').classList.add('hidden');
+            pendingTeamDelete = null;
+            
+            updateSelects();
+            render();
+        }
+
+        function cancelDeleteTeam() {
+            document.getElementById('confirmDeleteTeamModal').classList.add('hidden');
+            pendingTeamDelete = null;
+        }
+
+        function toggleAI() {
+            isResidentAI = !isResidentAI;
+            let btn = document.getElementById('aiToggleBtn');
+            btn.classList.toggle('active');
+        }
+
+        function generateFakeData() {
+            // Fake names
+            const firstNames = ['Alex', 'Jordan', 'Casey', 'Morgan', 'Taylor', 'Riley', 'Quinn', 'Dakota', 'Cameron', 'Austin', 'Sam', 'Chris', 'Dana', 'Blake', 'Drew'];
+            const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson'];
+            const patientNames = ['Patient A', 'Patient B', 'Patient C', 'Patient D', 'Patient E', 'Patient F', 'Patient G', 'Patient H', 'Patient I', 'Patient J', 'Mr. Johnson', 'Ms. Lee', 'Mr. Chen', 'Ms. Patel', 'Mr. O\'Brien'];
+            const tasks = ['Follow-up labs', 'Check vitals', 'Review imaging', 'Consult cardiology', 'Change dressing', 'Pain management', 'PT/OT eval', 'Discharge planning', 'Medication review', 'Blood cultures'];
+            const notes = ['Stable overnight', 'Monitor closely', 'Pending results', 'Family visiting', 'NPO post-op', 'On antibiotics', 'Declining', 'Improving steadily', 'Awaiting surgery', 'Watch K+ levels'];
+            
+            // Clear existing data
+            data.teams = [];
+            data.residents = [];
+            data.patients = [];
+            selectedTeams = [];
+            
+            // Create teams
+            const teamNames = ['Wearn', 'Ratnoff', 'Dworken'];
+            let nextTeamId = 1;
+            teamNames.forEach(name => {
+                data.teams.push({id: nextTeamId, name});
+                selectedTeams.push(name);
+                nextTeamId++;
+            });
+            
+            // Create residents and patients per team
+            let nextResId = 100;
+            let nextPatId = 1000;
+            const calls = ['L-M', 'M-S', 'S-H', 'H-L'];
+            
+            data.teams.forEach(team => {
+                // 3-4 residents per team
+                const resCount = Math.floor(Math.random() * 2) + 3;
+                for (let i = 0; i < resCount; i++) {
+                    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                    const residentId = nextResId++;
+                    
+                    data.residents.push({
+                        id: residentId,
+                        teamId: team.id,
+                        name: `${firstName} ${lastName}`,
+                        call: calls[Math.floor(Math.random() * calls.length)],
+                        isAI: Math.random() < 0.2
+                    });
+                    
+                    // 2-4 patients per resident
+                    const patCount = Math.floor(Math.random() * 3) + 2;
+                    for (let j = 0; j < patCount; j++) {
+                        const patientName = patientNames[Math.floor(Math.random() * patientNames.length)] + ' ' + Math.floor(Math.random() * 1000);
+                        const taskCount = Math.floor(Math.random() * 3) + 1;
+                        const patientTasks = [];
+                        
+                        for (let k = 0; k < taskCount; k++) {
+                            patientTasks.push({
+                                id: Date.now() + Math.random(),
+                                text: tasks[Math.floor(Math.random() * tasks.length)],
+                                done: Math.random() < 0.3
+                            });
+                        }
+                        
+                        data.patients.push({
+                            id: nextPatId++,
+                            residentId: residentId,
+                            name: patientName,
+                            tasks: patientTasks,
+                            notes: Math.random() < 0.6 ? notes[Math.floor(Math.random() * notes.length)] : '',
+                            followup: Math.random() < 0.1 ? 'escalated' : Math.random() < 0.4 ? 'completed' : 'pending',
+                            watcher: Math.random() < 0.2
+                        });
+                    }
+                }
+            });
+            
+            updateSelects();
+            render();
+            alert('✅ Fake data generated! Teams: ' + data.teams.length + ', Residents: ' + data.residents.length + ', Patients: ' + data.patients.length);
+        }
+
+        function addResident() {
+            let teamId = parseInt(document.getElementById('teamSelect').value);
+            let name = document.getElementById('residentName').value.trim();
+            let call = document.getElementById('callSchedule').value;
+            
+            if (!teamId || !name || !call) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            lastSelectedTeam = teamId; // Remember this team
+            
+            data.residents.push({
+                id: Date.now(),
+                teamId: teamId,
+                name: name,
+                call: call,
+                isAI: isResidentAI
+            });
+            
+            document.getElementById('residentName').value = '';
+            document.getElementById('callSchedule').value = '';
+            isResidentAI = false;
+            document.getElementById('aiToggleBtn').classList.remove('active');
+            updateSelects();
+            render();
+        }
+
+        function addPatient() {
+            let residentId = parseInt(document.getElementById('residentSelect').value);
+            let name = document.getElementById('patientName').value.trim();
+            
+            if (!residentId || !name) {
+                alert('Please select a resident and enter patient name');
+                return;
+            }
+            
+            data.patients.push({
+                id: Date.now(),
+                residentId: residentId,
+                name: name,
+                actions: '',
+                notes: '',
+                followup: 'pending',
+                tasks: tempTasks.map(t => ({...t})),
+                watcher: false
+            });
+            
+            document.getElementById('patientName').value = '';
+            document.getElementById('actionItems').value = '';
+            tempTasks = [];
+            updateTasksDisplay();
+            render();
+        }
+
+        function changeFollowup(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            let options = ['pending', 'completed', 'escalated'];
+            let current = options.indexOf(patient.followup);
+            let next = (current + 1) % options.length;
+            patient.followup = options[next];
+            render();
+        }
+
+        function toggleWatcher(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (patient) {
+                patient.watcher = !patient.watcher;
+                render();
+            }
+        }
+
+        function toggleEscalated(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (patient) {
+                patient.followup = patient.followup === 'escalated' ? 'pending' : 'escalated';
+                render();
+            }
+        }
+
+        function startEditNotes(patientId) {
+            editingNotes = patientId;
+            render();
+            setTimeout(() => {
+                let input = document.getElementById('notes-input-' + patientId);
+                if (input) input.focus();
+            }, 0);
+        }
+
+        function saveNotes(patientId) {
+            let input = document.getElementById('notes-input-' + patientId);
+            let patient = data.patients.find(p => p.id === patientId);
+            if (patient && input) {
+                patient.notes = input.value.trim();
+            }
+            editingNotes = null;
+            render();
+        }
+
+        function cancelEditNotes() {
+            editingNotes = null;
+            render();
+        }
+
+        function deleteTeam(teamId) {
+            let resIds = data.residents.filter(r => r.teamId === teamId).map(r => r.id);
+            let patientIds = data.patients.filter(p => resIds.includes(p.residentId)).map(p => p.id);
+            data.teams = data.teams.filter(t => t.id !== teamId);
+            data.residents = data.residents.filter(r => r.teamId !== teamId);
+            data.patients = data.patients.filter(p => !resIds.includes(p.residentId));
+            updateSelects();
+            render();
+        }
+
+        function deleteResident(residentId) {
+            let resident = data.residents.find(r => r.id === residentId);
+            let patientCount = data.patients.filter(p => p.residentId === residentId).length;
+            
+            let message = `Remove ${resident.name}? This will delete ${patientCount} patient${patientCount !== 1 ? 's' : ''}.`;
+            pendingConfirmAction = {
+                type: 'deleteResident',
+                residentId: residentId
+            };
+            
+            document.getElementById('confirmActionTitle').textContent = 'Remove Resident';
+            document.getElementById('confirmActionMessage').textContent = message;
+            document.getElementById('confirmActionModal').classList.remove('hidden');
+        }
+
+        function deletePatient(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            let message = `Remove patient ${patient.name}? This cannot be undone.`;
+            
+            pendingConfirmAction = {
+                type: 'deletePatient',
+                patientId: patientId
+            };
+            
+            document.getElementById('confirmActionTitle').textContent = 'Remove Patient';
+            document.getElementById('confirmActionMessage').textContent = message;
+            document.getElementById('confirmActionModal').classList.remove('hidden');
+        }
+
+        function resetAllActionItems() {
+            pendingConfirmAction = {
+                type: 'resetActionItems'
+            };
+            
+            document.getElementById('confirmActionTitle').textContent = 'Clear Action Items';
+            document.getElementById('confirmActionMessage').textContent = 'Clear all action items for all patients? This cannot be undone.';
+            document.getElementById('confirmActionModal').classList.remove('hidden');
+        }
+
+        function resetAllNotes() {
+            pendingConfirmAction = {
+                type: 'resetNotes'
+            };
+            
+            document.getElementById('confirmActionTitle').textContent = 'Clear Notes';
+            document.getElementById('confirmActionMessage').textContent = 'Clear all notes for all patients? This cannot be undone.';
+            document.getElementById('confirmActionModal').classList.remove('hidden');
+        }
+
+        function performConfirmedAction() {
+            if (!pendingConfirmAction) return;
+            
+            let action = pendingConfirmAction;
+            pendingConfirmAction = null;
+            
+            if (action.type === 'deleteResident') {
+                let patientIds = data.patients.filter(p => p.residentId === action.residentId).map(p => p.id);
+                data.residents = data.residents.filter(r => r.id !== action.residentId);
+                data.patients = data.patients.filter(p => p.residentId !== action.residentId);
+                updateSelects();
+            } else if (action.type === 'deletePatient') {
+                data.patients = data.patients.filter(p => p.id !== action.patientId);
+            } else if (action.type === 'resetActionItems') {
+                data.patients.forEach(p => {
+                    p.tasks = [];
+                });
+            } else if (action.type === 'resetNotes') {
+                data.patients.forEach(p => {
+                    p.notes = '';
+                });
+            }
+            
+            document.getElementById('confirmActionModal').classList.add('hidden');
+            render();
+        }
+
+        function cancelConfirmAction() {
+            pendingConfirmAction = null;
+            document.getElementById('confirmActionModal').classList.add('hidden');
+        }
+
+        function editResidentName(residentId, event) {
+            event.stopPropagation();
+            editingResidentName = residentId;
+            render();
+            setTimeout(() => {
+                let input = document.getElementById(`resident-name-input-${residentId}`);
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 0);
+        }
+
+        function saveResidentName(residentId) {
+            let resident = data.residents.find(r => r.id === residentId);
+            let input = document.getElementById(`resident-name-input-${residentId}`);
+            if (resident && input) {
+                resident.name = input.value.trim();
+                if (!resident.name) resident.name = 'Unnamed';
+            }
+            editingResidentName = null;
+            render();
+        }
+
+        function cancelEditResidentName() {
+            editingResidentName = null;
+            render();
+        }
+
+        function editPatientName(patientId, event) {
+            event.stopPropagation();
+            editingPatientName = patientId;
+            render();
+            setTimeout(() => {
+                let input = document.getElementById(`patient-name-input-${patientId}`);
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 0);
+        }
+
+        function savePatientName(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            let input = document.getElementById(`patient-name-input-${patientId}`);
+            if (patient && input) {
+                patient.name = input.value.trim();
+                if (!patient.name) patient.name = 'Unnamed';
+            }
+            editingPatientName = null;
+            render();
+        }
+
+        function cancelEditPatientName() {
+            editingPatientName = null;
+            render();
+        }
+
+        function updateSelects() {
+            let teamSelect = document.getElementById('teamSelect');
+            teamSelect.innerHTML = '<option value="">Select a team</option>';
+            data.teams.forEach(team => {
+                let opt = document.createElement('option');
+                opt.value = team.id;
+                opt.text = team.name;
+                if (lastSelectedTeam && team.id === lastSelectedTeam) {
+                    opt.selected = true;
+                }
+                teamSelect.appendChild(opt);
+            });
+            
+            let residentSelect = document.getElementById('residentSelect');
+            residentSelect.innerHTML = '<option value="">Select a resident</option>';
+            data.residents.forEach(resident => {
+                let team = data.teams.find(t => t.id === resident.teamId);
+                let aiLabel = resident.isAI ? ' (AI)' : '';
+                let opt = document.createElement('option');
+                opt.value = resident.id;
+                opt.text = (team ? team.name + ' - ' : '') + resident.name + aiLabel;
+                residentSelect.appendChild(opt);
+            });
+        }
+
+        function generateTally() {
+            let tallyLines = [];
+            data.teams.forEach(team => {
+                let teamResidents = data.residents.filter(r => r.teamId === team.id);
+                teamResidents.forEach(resident => {
+                    let patientCount = data.patients.filter(p => p.residentId === resident.id).length;
+                    let aiLabel = resident.isAI ? ' (AI)' : '';
+                    let callSchedule = resident.call.replace(/→/g, '-');
+                    tallyLines.push(`${team.name} - ${resident.name}${aiLabel} - ${callSchedule} (${patientCount})`);
+                });
+            });
+            return tallyLines.join('\n');
+        }
+
+        function updateTally() {
+            let tallyText = generateTally();
+            let tallyDiv = document.getElementById('tallyText');
+            if (tallyText.trim()) {
+                tallyDiv.textContent = tallyText;
+            } else {
+                tallyDiv.textContent = 'Add residents and patients to see tally';
+            }
+        }
+
+        function copyTally() {
+            let tallyText = generateTally();
+            if (!tallyText.trim()) {
+                alert('Nothing to copy - add residents and patients first');
+                return;
+            }
+            navigator.clipboard.writeText(tallyText).then(() => {
+                alert('Tally copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy - try selecting and copying manually');
+            });
+        }
+
+        function toggleSummary() {
+            let content = document.getElementById('summaryContent');
+            let toggle = document.querySelector('.summary-toggle');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            toggle.classList.toggle('collapsed');
+            localStorage.setItem('summaryCollapsed', content.style.display === 'none');
+        }
+
+        function toggleHideColumns() {
+            hideColumns = !hideColumns;
+            let btn = document.getElementById('hideColumnsBtn');
+            btn.textContent = hideColumns ? 'Show Columns' : 'Hide Columns';
+            
+            // Toggle visibility of team, resident, call columns in all rows
+            let table = document.getElementById('myTable');
+            
+            // Hide/show header columns
+            let headers = table.querySelectorAll('thead th[data-column-type]');
+            headers.forEach(header => {
+                if (['team', 'resident', 'call'].includes(header.dataset.columnType)) {
+                    header.style.display = hideColumns ? 'none' : 'table-cell';
+                }
+            });
+            
+            // Hide/show body columns
+            let cells = table.querySelectorAll('tbody td[data-column-type]');
+            cells.forEach(cell => {
+                if (['team', 'resident', 'call'].includes(cell.dataset.columnType)) {
+                    cell.style.display = hideColumns ? 'none' : 'table-cell';
+                }
+            });
+        }
+
+        function navigateToPatient(patientId) {
+            // Convert to string to match data attribute
+            let patientIdStr = String(patientId);
+            
+            // Clear search to show all patients
+            document.getElementById('patientSearch').value = '';
+            searchTerm = '';
+            
+            // Render to show all patients
+            render();
+            
+            // Scroll to the patient row after render completes
+            setTimeout(() => {
+                let row = document.querySelector(`tr[data-patient-id="${patientIdStr}"]`);
+                if (row) {
+                    row.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    row.style.backgroundColor = 'rgba(255, 255, 0, 0.3)';
+                    setTimeout(() => {
+                        row.style.backgroundColor = '';
+                    }, 2000);
+                } else {
+                    console.warn('Could not find patient row with ID:', patientIdStr);
+                }
+            }, 150);
+        }
+
+        function getPatientCubeColor(patient) {
+            // Red: escalated OR watcher
+            if (patient.followup === 'escalated' || patient.watcher) {
+                return 'red';
+            }
+            
+            // Green: NTD or all tasks done
+            if (patient.tasks) {
+                let hasNTD = patient.tasks.some(t => t.text === 'NTD');
+                let allTasksDone = patient.tasks.every(t => t.done);
+                if (hasNTD || allTasksDone) {
+                    return 'green';
+                }
+            } else {
+                // No tasks = green
+                return 'green';
+            }
+            
+            // Yellow: tasks need to be done
+            return 'yellow';
+        }
+
+        function getPatientTasksString(patient) {
+            if (!patient.tasks || patient.tasks.length === 0) {
+                return 'No tasks';
+            }
+            return patient.tasks.map(t => t.text).join(', ');
+        }
+
+        function updateSummary() {
+            let summaryTableBody = document.getElementById('summaryTableBody');
+            summaryTableBody.innerHTML = '';
+            
+            data.teams.forEach(team => {
+                let teamPatients = [];
+                data.residents.forEach(resident => {
+                    if (resident.teamId === team.id) {
+                        data.patients.forEach(patient => {
+                            if (patient.residentId === resident.id) {
+                                teamPatients.push(patient);
+                            }
+                        });
+                    }
+                });
+                
+                if (teamPatients.length > 0) {
+                    let row = summaryTableBody.insertRow();
+                    let teamCell = row.insertCell(0);
+                    let patientsCell = row.insertCell(1);
+                    
+                    teamCell.innerHTML = team.name;
+                    teamCell.style.fontWeight = '600';
+                    
+                    let cubesHtml = '<div class="team-cubes">';
+                    teamPatients.forEach(patient => {
+                        let color = getPatientCubeColor(patient);
+                        cubesHtml += `<div class="patient-cube ${color}" data-patient-id="${patient.id}" style="cursor: pointer;"></div>`;
+                    });
+                    cubesHtml += '</div>';
+                    patientsCell.innerHTML = cubesHtml;
+                    
+                    // Add click handlers and set tooltips to cubes
+                    patientsCell.querySelectorAll('.patient-cube').forEach(cube => {
+                        let patientId = parseInt(cube.getAttribute('data-patient-id'));
+                        let patient = data.patients.find(p => p.id === patientId);
+                        
+                        if (patient) {
+                            let tasksStr = getPatientTasksString(patient);
+                            let tooltip = `${patient.name} - ${team.name} - ${tasksStr}`;
+                            
+                            // Create a visible tooltip element
+                            let tooltipEl = document.createElement('div');
+                            tooltipEl.style.cssText = `
+                                position: fixed;
+                                background: #333;
+                                color: white;
+                                padding: 8px 12px;
+                                border-radius: 4px;
+                                font-size: 12px;
+                                white-space: nowrap;
+                                pointer-events: none;
+                                z-index: 10000;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                                display: none;
+                            `;
+                            tooltipEl.textContent = tooltip;
+                            document.body.appendChild(tooltipEl);
+                            
+                            cube.addEventListener('mouseenter', function() {
+                                let rect = cube.getBoundingClientRect();
+                                tooltipEl.style.display = 'block';
+                                tooltipEl.style.left = (rect.left + rect.width / 2 - 60) + 'px';
+                                tooltipEl.style.top = (rect.top - 40) + 'px';
+                            });
+                            
+                            cube.addEventListener('mouseleave', function() {
+                                tooltipEl.style.display = 'none';
+                            });
+                            
+                            cube.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                navigateToPatient(patientId);
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Update patient count badge
+            let patientCount = data.patients.length;
+            let countBadge = document.getElementById('patientCountBadge');
+            if (countBadge) {
+                countBadge.textContent = `— ${patientCount} patient${patientCount !== 1 ? 's' : ''}`;
+            }
+        }
+
+        function downloadData() {
+            if (data.teams.length === 0) {
+                alert('Nothing to download - add teams and residents first');
+                return;
+            }
+            let dataToExport = {
+                version: 2, // Current schema version
+                teams: data.teams,
+                residents: data.residents,
+                patients: data.patients,
+                selectedTeams: selectedTeams,
+                exportedAt: new Date().toLocaleString()
+            };
+            let dataStr = JSON.stringify(dataToExport, null, 2);
+            let dataBlob = new Blob([dataStr], {type: 'application/json'});
+            let url = URL.createObjectURL(dataBlob);
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = `sign-out-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            alert('Data downloaded!');
+        }
+
+        function migrateData(imported) {
+            // Handle different schema versions
+            let version = imported.version || 1;
+            
+            // Version 1 to 2 migration
+            if (version === 1) {
+                console.log('Migrating data from v1 to v2...');
+                // Ensure all required fields exist
+                imported.teams = imported.teams || [];
+                imported.residents = imported.residents || [];
+                imported.patients = imported.patients || [];
+                imported.selectedTeams = imported.selectedTeams || [];
+                
+                // Add missing fields to residents if they don't have them
+                imported.residents.forEach(resident => {
+                    if (!resident.call) resident.call = 'L-M';
+                    if (!resident.isAI) resident.isAI = false;
+                });
+                
+                // Add missing fields to patients if they don't have them
+                imported.patients.forEach(patient => {
+                    if (!patient.tasks) patient.tasks = [];
+                    if (!patient.notes) patient.notes = '';
+                    if (!patient.followup) patient.followup = 'pending';
+                    if (!patient.watcher) patient.watcher = false;
+                });
+            }
+            
+            // Add any other version migrations here as needed
+            if (version < 2) {
+                imported.version = 2;
+            }
+            
+            return imported;
+        }
+
+        function uploadData(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let imported = JSON.parse(e.target.result);
+                    
+                    // Validate basic structure
+                    if (!imported.teams || !imported.residents || !imported.patients) {
+                        alert('Invalid data format - file missing required fields (teams, residents, or patients)');
+                        return;
+                    }
+                    
+                    // Migrate data if needed
+                    imported = migrateData(imported);
+                    
+                    // Merge or replace data
+                    data.teams = imported.teams;
+                    data.residents = imported.residents;
+                    data.patients = imported.patients;
+                    selectedTeams = imported.selectedTeams || [];
+                    
+                    // Update team button styling
+                    document.querySelectorAll('.team-selection button').forEach(btn => {
+                        if (selectedTeams.includes(btn.textContent)) {
+                            btn.classList.add('team-selected');
+                        } else {
+                            btn.classList.remove('team-selected');
+                        }
+                    });
+                    
+                    updateSelects();
+                    render();
+                    
+                    // Auto-save to localStorage
+                    autoSaveToLocalStorage();
+                    
+                    alert('Data loaded successfully! ✓\nNo data has been lost during migration.');
+                } catch (err) {
+                    alert('Error reading file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function autoSaveToLocalStorage() {
+            let dataToSave = {
+                version: 2,
+                teams: data.teams,
+                residents: data.residents,
+                patients: data.patients,
+                selectedTeams: selectedTeams,
+                autoSavedAt: new Date().toISOString()
+            };
+            localStorage.setItem('signoutTrackerAutoSave', JSON.stringify(dataToSave));
+            lastAutoSaveTime = new Date();
+            updateAutoSaveStatus();
+        }
+
+        async function autoSaveToDesktop() {
+            // Only save if file handle exists
+            if (!desktopFileHandle) return;
+            
+            try {
+                // Request write permission
+                if ((await desktopFileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
+                    const writable = await desktopFileHandle.createWritable();
+                    const dataToSave = {
+                        version: 2,
+                        teams: data.teams,
+                        residents: data.residents,
+                        patients: data.patients,
+                        selectedTeams: selectedTeams,
+                        autoSavedAt: new Date().toISOString()
+                    };
+                    await writable.write(JSON.stringify(dataToSave, null, 2));
+                    await writable.close();
+                    lastAutoSaveTime = new Date();
+                    updateAutoSaveStatus();
+                }
+            } catch (err) {
+                console.error('Auto-save to desktop failed:', err);
+            }
+        }
+
+        function updateAutoSaveStatus() {
+            let statusEl = document.getElementById('autoSaveStatus');
+            if (!statusEl) return;
+            
+            if (desktopFileHandle) {
+                if (lastAutoSaveTime) {
+                    let time = lastAutoSaveTime.toLocaleTimeString();
+                    statusEl.innerHTML = `✅ Auto-saving to desktop (last saved: ${time})`;
+                } else {
+                    statusEl.innerHTML = `✅ Auto-saving to desktop enabled`;
+                }
+            } else {
+                if (lastAutoSaveTime) {
+                    let time = lastAutoSaveTime.toLocaleTimeString();
+                    statusEl.innerHTML = `💾 Auto-saving to browser (last saved: ${time})`;
+                } else {
+                    statusEl.innerHTML = `💾 Auto-saving to browser`;
+                }
+            }
+        }
+
+        function setupAutoSave() {
+            // Save to localStorage every 5 minutes
+            autoSaveHandle = setInterval(() => {
+                autoSaveToLocalStorage();
+                autoSaveToDesktop();
+            }, 300000); // 5 minutes in milliseconds
+            
+            // Also save immediately on page unload
+            window.addEventListener('beforeunload', autoSaveToLocalStorage);
+            
+            // Update status display initially
+            updateAutoSaveStatus();
+        }
+
+        async function setDesktopSaveLocation() {
+            try {
+                const handle = await window.showDirectoryPicker();
+                desktopFileHandle = await handle.getFileHandle('signout-tracker-backup.json', { create: true });
+                alert('Auto-save to desktop enabled! Your data will be saved every 5 minutes.');
+                autoSaveToDesktop(); // Save immediately
+            } catch (err) {
+                console.log('Desktop save location not set');
+            }
+        }
+
+        function restoreFromAutoSave() {
+            let saved = localStorage.getItem('signoutTrackerAutoSave');
+            if (saved) {
+                try {
+                    let imported = JSON.parse(saved);
+                    if (imported.teams && imported.residents && imported.patients) {
+                        // Migrate data if needed
+                        imported = migrateData(imported);
+                        
+                        data.teams = imported.teams;
+                        data.residents = imported.residents;
+                        data.patients = imported.patients;
+                        selectedTeams = imported.selectedTeams || [];
+                        
+                        // Update team button styling
+                        document.querySelectorAll('.team-selection button').forEach(btn => {
+                            if (selectedTeams.includes(btn.textContent)) {
+                                btn.classList.add('team-selected');
+                            } else {
+                                btn.classList.remove('team-selected');
+                            }
+                        });
+                        
+                        updateSelects();
+                        render();
+                        console.log('Data restored from auto-save');
+                    }
+                } catch (err) {
+                    console.error('Error restoring auto-save:', err);
+                }
+            }
+        }
+
+        function toggleTask(patientId, taskId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (!patient || !patient.tasks) return;
+            
+            let task = patient.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.done = !task.done;
+                render();
+            }
+        }
+
+        function editTask(patientId, taskId, event) {
+            event.stopPropagation();
+            editingTask = {patientId, taskId};
+            render();
+            setTimeout(() => {
+                let input = document.getElementById(`task-input-${patientId}-${taskId}`);
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 0);
+        }
+
+        function saveTask(patientId, taskId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (!patient || !patient.tasks) return;
+            
+            let task = patient.tasks.find(t => t.id === taskId);
+            let input = document.getElementById(`task-input-${patientId}-${taskId}`);
+            if (task && input) {
+                task.text = input.value.trim();
+                if (!task.text) {
+                    patient.tasks = patient.tasks.filter(t => t.id !== taskId);
+                }
+            }
+            editingTask = null;
+            render();
+        }
+
+        function cancelEditTask() {
+            editingTask = null;
+            render();
+        }
+
+        function addTaskToPatient(patientId) {
+            let patient = data.patients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            if (!patient.tasks) patient.tasks = [];
+            let newTask = {
+                id: Math.max(0, ...patient.tasks.map(t => t.id)) + 1,
+                text: '',
+                done: false
+            };
+            patient.tasks.push(newTask);
+            editingTask = {patientId, taskId: newTask.id};
+            render();
+            setTimeout(() => {
+                let input = document.getElementById(`task-input-${patientId}-${newTask.id}`);
+                if (input) input.focus();
+            }, 0);
+        }
+
+        function deleteTask(patientId, taskId, event) {
+            event.stopPropagation();
+            let patient = data.patients.find(p => p.id === patientId);
+            if (patient && patient.tasks) {
+                patient.tasks = patient.tasks.filter(t => t.id !== taskId);
+                render();
+            }
+        }
+
+        function sortTable(column) {
+            // If clicking same column, toggle direction
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            render();
+        }
+
+        function applySorting(patients, column) {
+            let sorted = [...patients];
+            
+            sorted.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'patient':
+                        aVal = a.name.toLowerCase();
+                        bVal = b.name.toLowerCase();
+                        break;
+                    case 'notes':
+                        aVal = (a.notes || '').toLowerCase();
+                        bVal = (b.notes || '').toLowerCase();
+                        break;
+                    case 'actions':
+                        // Sort by number of pending tasks
+                        let aPending = a.tasks ? a.tasks.filter(t => !t.done && t.text !== 'NTD').length : 0;
+                        let bPending = b.tasks ? b.tasks.filter(t => !t.done && t.text !== 'NTD').length : 0;
+                        aVal = aPending;
+                        bVal = bPending;
+                        break;
+                    case 'watcher':
+                        aVal = a.watcher ? 1 : 0;
+                        bVal = b.watcher ? 1 : 0;
+                        break;
+                    case 'escalated':
+                        aVal = a.followup === 'escalated' ? 1 : 0;
+                        bVal = b.followup === 'escalated' ? 1 : 0;
+                        break;
+                    default:
+                        aVal = a.name;
+                        bVal = b.name;
+                }
+                
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            return sorted;
+        }
+
+        function testSearch(searchStr) {
+            let term = searchStr.trim().toLowerCase();
+            console.log('\n=== TEST SEARCH ===');
+            console.log('Testing search term:', term);
+            
+            data.patients.forEach(p => {
+                let pname = (p.name || '').toLowerCase();
+                let matches = pname.includes(term);
+                console.log(`  "${p.name}" - includes "${term}" = ${matches}`);
+            });
+            console.log('=== END TEST ===\n');
+        }
+
+        function filterPatients() {
+            let searchInput = document.getElementById('patientSearch');
+            if (!searchInput) {
+                console.error('Search input not found');
+                return;
+            }
+            let inputValue = searchInput.value || '';
+            searchTerm = inputValue.trim().toLowerCase();
+            render();
+        }
+
+        function clearSearch() {
+            document.getElementById('patientSearch').value = '';
+            searchTerm = '';
+            render();
+        }
+
+        function shouldHidePatient(patient) {
+            // If there's a search term, check if patient name matches
+            if (searchTerm && searchTerm.length > 0) {
+                let patientName = patient.name || '';
+                let patientNameLower = patientName.toLowerCase();
+                let matches = patientNameLower.includes(searchTerm);
+                
+                if (!matches) {
+                    return true; // Hide if doesn't match search
+                }
+            }
+            
+            // Check if hiding NTD and this patient is NTD
+            if (hideNTD && patient.tasks && patient.tasks.some(t => t.text === 'NTD')) {
+                return true;
+            }
+            
+            // Check if hiding completed and all tasks are done
+            if (hideNTD && patient.tasks && patient.tasks.length > 0) {
+                let allTasksDone = patient.tasks.every(t => t.done);
+                if (allTasksDone && !patient.tasks.some(t => t.text === 'NTD')) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function toggleHideNTD() {
+            hideNTD = document.getElementById('hideNTDCheckbox').checked;
+            let label = document.querySelector('.ntd-toggle');
+            if (hideNTD) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+            render();
+        }
+
+        function editCall(residentId, event) {
+            event.stopPropagation();
+            editingCall = residentId;
+            render();
+            setTimeout(() => {
+                let select = document.getElementById(`call-select-${residentId}`);
+                if (select) select.focus();
+            }, 0);
+        }
+
+        function saveCall(residentId) {
+            let resident = data.residents.find(r => r.id === residentId);
+            let select = document.getElementById(`call-select-${residentId}`);
+            if (resident && select) {
+                resident.call = select.value;
+            }
+            editingCall = null;
+            render();
+        }
+
+        function cancelEditCall() {
+            editingCall = null;
+            render();
+        }
+
+        function rotateAllCalls() {
+            // Map each call to the next day
+            const callMap = {
+                'L-M': 'M-S',
+                'M-S': 'S-H',
+                'S-H': 'H-L',
+                'H-L': 'L-M'
+            };
+            
+            // Rotate all residents' calls
+            data.residents.forEach(resident => {
+                if (callMap[resident.call]) {
+                    resident.call = callMap[resident.call];
+                }
+            });
+            
+            editingCall = null;
+            render();
+        }
+
+        function openQuickAddPatientModal(residentId) {
+            quickAddSelectedResidentId = residentId;
+            quickAddPatientModalOpen = true;
+            quickAddTempTasks = [];
+            document.getElementById('quickPatientName').value = '';
+            document.getElementById('quickTaskInput').value = '';
+            document.getElementById('quickAddPatientModal').classList.remove('hidden');
+            updateQuickTasksDisplay();
+            setTimeout(() => {
+                document.getElementById('quickPatientName').focus();
+            }, 0);
+        }
+
+        function closeQuickAddPatientModal() {
+            quickAddPatientModalOpen = false;
+            quickAddSelectedResidentId = null;
+            quickAddTempTasks = [];
+            document.getElementById('quickAddPatientModal').classList.add('hidden');
+        }
+
+        function quickAddTask() {
+            if (quickAddTempTasks.some(t => t.text === 'NTD')) {
+                alert('Cannot add tasks when NTD is selected');
+                return;
+            }
+
+            let taskInput = document.getElementById('quickTaskInput');
+            let taskText = taskInput.value.trim();
+            if (taskText) {
+                quickAddTempTasks.push({id: quickAddTempTasks.length + 1, text: taskText, done: false});
+                taskInput.value = '';
+                updateQuickTasksDisplay();
+                taskInput.focus();
+            }
+        }
+
+        function quickAddNTD() {
+            quickAddTempTasks = [{id: 1, text: 'NTD', done: false}];
+            document.getElementById('quickTaskInput').value = '';
+            updateQuickTasksDisplay();
+        }
+
+        function quickRemoveTask(taskId) {
+            quickAddTempTasks = quickAddTempTasks.filter(t => t.id !== taskId);
+            updateQuickTasksDisplay();
+        }
+
+        function updateQuickTasksDisplay() {
+            let display = document.getElementById('quickTasksDisplay');
+            if (quickAddTempTasks.length === 0) {
+                display.innerHTML = '<span style="color: #999;">No tasks added</span>';
+                document.getElementById('quickTaskInput').disabled = false;
+                document.querySelector('#quickAddPatientModal .btn-add').disabled = false;
+            } else {
+                display.innerHTML = quickAddTempTasks.map(task => `
+                    <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0;">
+                        <span>${task.text}</span>
+                        <button class="task-remove-btn" onclick="quickRemoveTask(${task.id})">×</button>
+                    </div>
+                `).join('');
+                if (quickAddTempTasks.some(t => t.text === 'NTD')) {
+                    document.getElementById('quickTaskInput').disabled = true;
+                }
+            }
+        }
+
+        function quickAddPatientConfirm() {
+            let patientName = document.getElementById('quickPatientName').value.trim();
+            if (!patientName) {
+                alert('Please enter a patient name');
+                return;
+            }
+
+            let newPatient = {
+                id: Math.max(0, ...data.patients.map(p => p.id), 0) + 1,
+                residentId: quickAddSelectedResidentId,
+                name: patientName,
+                actions: '',
+                notes: '',
+                followup: 'pending',
+                tasks: [...quickAddTempTasks],
+                watcher: false
+            };
+
+            data.patients.push(newPatient);
+            closeQuickAddPatientModal();
+            render();
+        }
+
+        function render() {
+            let tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            if (data.teams.length === 0) return;
+
+            // Create flat list of ALL patients with their team/resident info
+            let allRecords = [];
+            data.patients.forEach(patient => {
+                if (!shouldHidePatient(patient)) {
+                    let resident = data.residents.find(r => r.id === patient.residentId);
+                    if (resident) {
+                        let team = data.teams.find(t => t.id === resident.teamId);
+                        if (team) {
+                            allRecords.push({patient, resident, team});
+                        }
+                    }
+                }
+            });
+            
+            // Sort all records based on selected column
+            allRecords.sort((a, b) => {
+                let aVal, bVal;
+                switch(sortColumn) {
+                    case 'team':
+                        aVal = a.team.name.toLowerCase();
+                        bVal = b.team.name.toLowerCase();
+                        break;
+                    case 'resident':
+                        aVal = a.resident.name.toLowerCase();
+                        bVal = b.resident.name.toLowerCase();
+                        break;
+                    case 'call':
+                        aVal = a.resident.call || '';
+                        bVal = b.resident.call || '';
+                        break;
+                    case 'patient':
+                        aVal = a.patient.name.toLowerCase();
+                        bVal = b.patient.name.toLowerCase();
+                        break;
+                    case 'notes':
+                        aVal = (a.patient.notes || '').toLowerCase();
+                        bVal = (b.patient.notes || '').toLowerCase();
+                        break;
+                    case 'actions':
+                        let aPending = a.patient.tasks ? a.patient.tasks.filter(t => !t.done && t.text !== 'NTD').length : 0;
+                        let bPending = b.patient.tasks ? b.patient.tasks.filter(t => !t.done && t.text !== 'NTD').length : 0;
+                        aVal = aPending;
+                        bVal = bPending;
+                        break;
+                    case 'watcher':
+                        aVal = a.patient.watcher ? 1 : 0;
+                        bVal = b.patient.watcher ? 1 : 0;
+                        break;
+                    case 'escalated':
+                        aVal = a.patient.followup === 'escalated' ? 1 : 0;
+                        bVal = b.patient.followup === 'escalated' ? 1 : 0;
+                        break;
+                    default:
+                        aVal = a.resident.name.toLowerCase();
+                        bVal = b.resident.name.toLowerCase();
+                }
+                if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            // Render each patient as a flat row with team/resident/call
+            allRecords.forEach(record => {
+                let {patient, resident, team} = record;
+                let row = tbody.insertRow();
+                
+                let badgeClass = patient.followup === 'completed' ? 'completed' : patient.followup === 'escalated' ? 'escalated' : 'pending';
+                
+                // Handle tasks
+                let tasksHtml = '';
+                let cellClass = 'patient-actions';
+                if (patient.tasks && patient.tasks.length > 0) {
+                    let hasNTD = patient.tasks.some(t => t.text === 'NTD');
+                    let hasPendingTasks = patient.tasks.some(t => !t.done);
+                    let allTasksDone = patient.tasks.every(t => t.done);
+                    
+                    if (hasNTD) {
+                        cellClass += ' all-tasks-done';
+                    } else if (allTasksDone) {
+                        cellClass += ' all-tasks-done';
+                    } else if (hasPendingTasks) {
+                        cellClass += ' has-pending-tasks';
+                    }
+                    
+                    tasksHtml = '<div class="tasks-list">' + patient.tasks.map(task => {
+                        if (task.text === 'NTD') {
+                            return `<div class="task-item ntd"><div class="task-checkbox done"></div><div class="task-text">${task.text}</div></div>`;
+                        }
+                        if (editingTask && editingTask.patientId === patient.id && editingTask.taskId === task.id) {
+                            return `<div class="task-item editing">
+                                <input type="text" id="task-input-${patient.id}-${task.id}" class="task-input" value="${task.text}" 
+                                    onkeydown="if(event.key==='Enter') saveTask(${patient.id}, ${task.id}); if(event.key==='Escape') cancelEditTask();"
+                                    onblur="saveTask(${patient.id}, ${task.id})">
+                            </div>`;
+                        }
+                        return `<div class="task-item ${task.done ? 'done' : ''}" ondblclick="editTask(${patient.id}, ${task.id}, event)">
+                            <div class="task-checkbox ${task.done ? 'done' : ''}" onclick="toggleTask(${patient.id}, ${task.id})"></div>
+                            <div class="task-text">${task.text}</div>
+                            <button class="task-delete-btn" onclick="deleteTask(${patient.id}, ${task.id}, event)">×</button>
+                        </div>`;
+                    }).join('') + `<div class="task-add" onclick="addTaskToPatient(${patient.id})">+ Add task</div></div>`;
+                } else {
+                    tasksHtml = `<div class="tasks-list"><div style="color: #999; font-size: 12px; margin-bottom: 6px;">No tasks</div><div class="task-add" onclick="addTaskToPatient(${patient.id})">+ Add task</div></div>`;
+                }
+                
+                // Handle notes
+                let notesHtml = '';
+                if (editingNotes === patient.id) {
+                    notesHtml = `<td class="notes-cell"><div class="notes-input-container">
+                        <input type="text" id="notes-input-${patient.id}" value="${patient.notes}">
+                        <button class="btn-save" onclick="saveNotes(${patient.id})">Save</button>
+                        <button class="btn-cancel" onclick="cancelEditNotes()">Cancel</button>
+                    </div></td>`;
+                } else {
+                    let notesText = patient.notes || '<span class="notes-empty">Click to add notes</span>';
+                    notesHtml = `<td class="notes-cell" onclick="startEditNotes(${patient.id})">${notesText}</td>`;
+                }
+                
+                // Build resident name HTML
+                let aiLabel = resident.isAI ? ' (AI)' : '';
+                let residentNameHtml = '';
+                if (editingResidentName === resident.id) {
+                    residentNameHtml = `<input type="text" id="resident-name-input-${resident.id}" class="task-input" value="${resident.name}" 
+                        onkeydown="if(event.key==='Enter') saveResidentName(${resident.id}); if(event.key==='Escape') cancelEditResidentName();"
+                        onblur="saveResidentName(${resident.id})">`;
+                } else {
+                    residentNameHtml = `<span style="cursor: pointer;" ondblclick="editResidentName(${resident.id}, event)">${resident.name}${aiLabel}</span>`;
+                }
+                
+                // Build call HTML
+                let callHtml = '';
+                if (editingCall === resident.id) {
+                    callHtml = `<select id="call-select-${resident.id}" class="call-select" onchange="saveCall(${resident.id})" onblur="saveCall(${resident.id})">
+                        <option value="L-M" ${resident.call === 'L-M' ? 'selected' : ''}>L-M</option>
+                        <option value="M-S" ${resident.call === 'M-S' ? 'selected' : ''}>M-S</option>
+                        <option value="S-H" ${resident.call === 'S-H' ? 'selected' : ''}>S-H</option>
+                        <option value="H-L" ${resident.call === 'H-L' ? 'selected' : ''}>H-L</option>
+                    </select>`;
+                } else {
+                    callHtml = `<span style="cursor: pointer;" onclick="editCall(${resident.id}, event)">${resident.call}</span>`;
+                }
+                
+                // Build patient name HTML  
+                let patientNameHtml = '';
+                if (editingPatientName === patient.id) {
+                    patientNameHtml = `<input type="text" id="patient-name-input-${patient.id}" class="task-input" value="${patient.name}" 
+                        onkeydown="if(event.key==='Enter') savePatientName(${patient.id}); if(event.key==='Escape') cancelEditPatientName();"
+                        onblur="savePatientName(${patient.id})">`;
+                } else {
+                    patientNameHtml = `<span style="cursor: pointer; font-weight: 500;" ondblclick="editPatientName(${patient.id}, event)">${patient.name}</span>`;
+                }
+                
+                row.innerHTML = `
+                    <td class="team-cell" data-column-type="team">${team.name}</td>
+                    <td data-column-type="resident">${residentNameHtml}</td>
+                    <td data-column-type="call">${callHtml}</td>
+                    <td class="patient-name">${patientNameHtml}</td>
+                    <td class="${cellClass}">${tasksHtml}</td>
+                    ${notesHtml}
+                    <td class="patient-watcher"><span class="watcher-circle ${patient.watcher ? 'active' : ''}" onclick="toggleWatcher(${patient.id})"></span></td>
+                    <td style="text-align: center; width: 40px;"><button class="btn-delete" onclick="toggleEscalated(${patient.id})" style="font-size: 16px; padding: 2px 6px; opacity: ${patient.followup === 'escalated' ? '1' : '0.3'}; color: #ef4444;" title="Toggle escalated">🚨</button></td>
+                    <td class="patient-delete"><button class="btn-delete" onclick="deletePatient(${patient.id})">×</button></td>
+                `;
+                
+                // Setup drag and drop
+                row.draggable = true;
+                row.setAttribute('data-patient-id', patient.id);
+                row.setAttribute('data-resident-id', resident.id);
+                row.style.cursor = 'grab';
+                
+                row.ondragstart = function(e) {
+                    draggedPatient = {
+                        patientId: parseInt(this.getAttribute('data-patient-id')),
+                        fromResidentId: parseInt(this.getAttribute('data-resident-id'))
+                    };
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', draggedPatient.patientId);
+                    
+                    let dragImage = document.createElement('div');
+                    dragImage.style.background = 'rgba(var(--accent-rgb), 0.3)';
+                    dragImage.style.border = '2px solid var(--accent-color)';
+                    dragImage.style.padding = '8px 12px';
+                    dragImage.style.borderRadius = '4px';
+                    dragImage.style.position = 'absolute';
+                    dragImage.style.top = '-9999px';
+                    dragImage.textContent = '📋 ' + patient.name;
+                    document.body.appendChild(dragImage);
+                    e.dataTransfer.setDragImage(dragImage, 0, 0);
+                };
+                
+                row.ondragend = function(e) {
+                    draggedPatient = null;
+                };
+            });
+            
+            updateTally();
+            updateSummary();
+        }
+
+        // Modal outside click to close
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Display settings functions
+        function changeFontSize(size) {
+            let fontSize = parseInt(size);
+            localStorage.setItem('fontSize', fontSize);
+            document.getElementById('fontSizeValue').textContent = fontSize + 'px';
+            
+            // Create or update a style tag for global font size
+            let styleId = 'font-size-style';
+            let style = document.getElementById(styleId);
+            if (!style) {
+                style = document.createElement('style');
+                style.id = styleId;
+                document.head.appendChild(style);
+            }
+            
+            style.innerHTML = `
+                * {
+                    font-size: ${fontSize}px !important;
+                }
+                button {
+                    font-size: ${fontSize}px !important;
+                }
+                input, select, textarea {
+                    font-size: ${fontSize}px !important;
+                }
+            `;
+        }
+
+        function changeCellSize(size) {
+            let padding = parseInt(size);
+            localStorage.setItem('cellSize', padding);
+            document.getElementById('cellSizeValue').textContent = padding + 'px';
+            
+            // Create or update a style tag for cell padding
+            let styleId = 'cell-size-style';
+            let style = document.getElementById(styleId);
+            if (!style) {
+                style = document.createElement('style');
+                style.id = styleId;
+                document.head.appendChild(style);
+            }
+            
+            let verticalPad = (padding + 2);
+            let horizontalPad = (padding + 4);
+            
+            style.innerHTML = `
+                table td, table th {
+                    padding: ${verticalPad}px ${horizontalPad}px !important;
+                }
+                td, th {
+                    padding: ${verticalPad}px ${horizontalPad}px !important;
+                }
+            `;
+        }
+
+        function loadDisplaySettings() {
+            let savedFontSize = localStorage.getItem('fontSize');
+            let savedCellSize = localStorage.getItem('cellSize');
+            
+            if (savedFontSize) {
+                let fontSize = parseInt(savedFontSize);
+                document.getElementById('fontSizeSlider').value = fontSize;
+                changeFontSize(fontSize);
+            }
+            
+            if (savedCellSize) {
+                let cellSize = parseInt(savedCellSize);
+                document.getElementById('cellSizeSlider').value = cellSize;
+                changeCellSize(cellSize);
+            }
+        }
+
+        // Theme functions
+        function toggleDarkMode() {
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                // Switch to light mode
+                localStorage.setItem('darkMode', 'false');
+                applyLightTheme();
+            } else {
+                // Switch to dark mode
+                localStorage.setItem('darkMode', 'true');
+                applyDarkTheme();
+            }
+        }
+        
+        function applyLightTheme() {
+            document.documentElement.style.setProperty('--bg-color', '#ffffff');
+            document.documentElement.style.setProperty('--bg-color-light', '#f5f5f5');
+            document.documentElement.style.setProperty('--accent-color', '#0066cc');
+            document.documentElement.style.setProperty('--accent-light', '#0080ff');
+            document.documentElement.style.setProperty('--accent-dark', '#003d99');
+            document.documentElement.style.setProperty('--accent-rgb', '0, 102, 204');
+            document.documentElement.style.setProperty('--text-color', '#000000');
+            document.body.style.background = '#ffffff';
+            
+            // Light tally and summary sections
+            let tallySection = document.querySelector('.tally-section');
+            if (tallySection) {
+                tallySection.style.background = '#f5f5f5';
+                tallySection.style.borderColor = '#000000';
+            }
+            let summarySection = document.querySelector('.summary-section');
+            if (summarySection) {
+                summarySection.style.background = '#f5f5f5';
+                summarySection.style.borderColor = '#000000';
+            }
+            
+            
+            // Light inputs and controls
+            let inputs = document.querySelectorAll('input, select, .controls');
+            inputs.forEach(el => {
+                if (el.tagName === 'INPUT' && el.type !== 'range' && el.type !== 'color') {
+                    el.style.background = '#ffffff';
+                    el.style.borderColor = '#000000';
+                    el.style.color = '#000000';
+                }
+                if (el.tagName === 'SELECT') {
+                    el.style.background = '#ffffff url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%230066cc\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E") no-repeat right 10px center';
+                    el.style.borderColor = '#000000';
+                    el.style.color = '#000000';
+                }
+                if (el.classList && el.classList.contains('controls')) {
+                    el.style.background = '#f9f9f9';
+                    el.style.borderColor = '#000000';
+                }
+            });
+            
+            // Light range sliders
+            let sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.style.accentColor = '#0066cc';
+            });
+            
+            document.getElementById('darkModeBtn').textContent = '🌙 Dark Mode';
+        }
+        
+        function applyDarkTheme() {
+            document.documentElement.style.setProperty('--bg-color', '#0a0415');
+            document.documentElement.style.setProperty('--bg-color-light', '#1a0d2e');
+            document.documentElement.style.setProperty('--accent-color', '#a78bfa');
+            document.documentElement.style.setProperty('--accent-light', '#c4b5fd');
+            document.documentElement.style.setProperty('--accent-dark', '#7c3aed');
+            document.documentElement.style.setProperty('--accent-rgb', '167, 139, 250');
+            document.documentElement.style.setProperty('--text-color', '#ffffff');
+            document.body.style.background = 'linear-gradient(135deg, #0a0415 0%, #1a0d2e 50%, #0a0415 100%)';
+            
+            // Dark tally and summary sections
+            let tallySection = document.querySelector('.tally-section');
+            if (tallySection) {
+                tallySection.style.background = '#1a0d2e';
+                tallySection.style.borderColor = '#a78bfa';
+            }
+            let summarySection = document.querySelector('.summary-section');
+            if (summarySection) {
+                summarySection.style.background = '#1a0d2e';
+                summarySection.style.borderColor = '#a78bfa';
+            }
+            
+            // Dark inputs and controls
+            let inputs = document.querySelectorAll('input, select, .controls');
+            inputs.forEach(el => {
+                if (el.tagName === 'INPUT' && el.type !== 'range' && el.type !== 'color') {
+                    el.style.background = '#1a0d2e';
+                    el.style.borderColor = '#a78bfa';
+                    el.style.color = '#ffffff';
+                }
+                if (el.tagName === 'SELECT') {
+                    el.style.background = '#1a0d2e url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23a78bfa\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E") no-repeat right 10px center';
+                    el.style.borderColor = '#a78bfa';
+                    el.style.color = '#ffffff';
+                }
+                if (el.classList && el.classList.contains('controls')) {
+                    el.style.background = 'rgba(167, 139, 250, 0.08)';
+                    el.style.borderColor = '#a78bfa';
+                }
+            });
+            
+            // Dark range sliders
+            let sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.style.accentColor = '#a78bfa';
+            });
+            
+            document.getElementById('darkModeBtn').textContent = '☀️ Light Mode';
+        }
+
+        function openThemeModal() {
+            let bgColor = localStorage.getItem('bg-color') || '#0a0415';
+            let accentColor = localStorage.getItem('accent-color') || '#a78bfa';
+            document.getElementById('bgColorInput').value = bgColor;
+            document.getElementById('accentColorInput').value = accentColor;
+            document.getElementById('themeModal').classList.remove('hidden');
+        }
+
+        function closeThemeModal() {
+            document.getElementById('themeModal').classList.add('hidden');
+        }
+
+        function applyTheme() {
+            let bgColor = document.getElementById('bgColorInput').value;
+            let accentColor = document.getElementById('accentColorInput').value;
+            
+            // Convert hex to RGB
+            let accentRGB = hexToRGB(accentColor);
+            let bgColorLight = lightenColor(bgColor, 15);
+            let textColor = getContrastColor(bgColor);
+            
+            // Set CSS variables
+            document.documentElement.style.setProperty('--bg-color', bgColor);
+            document.documentElement.style.setProperty('--bg-color-light', bgColorLight);
+            document.documentElement.style.setProperty('--accent-color', accentColor);
+            document.documentElement.style.setProperty('--accent-rgb', accentRGB);
+            document.documentElement.style.setProperty('--text-color', textColor);
+            
+            // Calculate lighter accent for some uses
+            let accentLight = lightenColor(accentColor, 20);
+            document.documentElement.style.setProperty('--accent-light', accentLight);
+            
+            // Save to localStorage
+            localStorage.setItem('bg-color', bgColor);
+            localStorage.setItem('accent-color', accentColor);
+            
+            closeThemeModal();
+        }
+
+        function hexToRGB(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? parseInt(result[1], 16) + ', ' + parseInt(result[2], 16) + ', ' + parseInt(result[3], 16) : '167, 139, 250';
+        }
+
+        function getContrastColor(hex) {
+            // Calculate luminance to determine if background is light or dark
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!result) return '#000000';
+            
+            let r = parseInt(result[1], 16);
+            let g = parseInt(result[2], 16);
+            let b = parseInt(result[3], 16);
+            
+            // Calculate relative luminance
+            let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            
+            // Return dark text for light backgrounds, white text for dark backgrounds
+            return luminance > 0.5 ? '#000000' : '#ffffff';
+        }
+
+        function lightenColor(color, percent) {
+            let num = parseInt(color.replace("#", ""), 16);
+            let amt = Math.round(2.55 * percent);
+            let R = (num >> 16) + amt;
+            let G = (num >> 8 & 0x00FF) + amt;
+            let B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 +
+                (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255))
+                .toString(16).slice(1);
+        }
+
+        // Load theme from localStorage on page load
+        function loadTheme() {
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
+            if (isDarkMode) {
+                applyDarkTheme();
+            } else {
+                applyLightTheme();
+            }
+        }
+
+        // Close theme modal when clicking outside
+        document.getElementById('themeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeThemeModal();
+            }
+        });
+
+        document.getElementById('quickAddPatientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQuickAddPatientModal();
+            }
+        });
+
+        document.getElementById('confirmDeleteTeamModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cancelDeleteTeam();
+            }
+        });
+
+        document.getElementById('confirmActionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cancelConfirmAction();
+            }
+        });
+
+        // Initialize table on page load
+        loadTheme();
+        loadDisplaySettings();
+        restoreFromAutoSave();
+        render();
+        
+        // Restore summary collapsed state
+        if (localStorage.getItem('summaryCollapsed') === 'true') {
+            let content = document.getElementById('summaryContent');
+            let toggle = document.querySelector('.summary-toggle');
+            content.style.display = 'none';
+            toggle.classList.add('collapsed');
+        }
+        
+        setupAutoSave();
+    </script>
+</body>
+</html>
